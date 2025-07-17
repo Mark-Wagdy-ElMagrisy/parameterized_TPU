@@ -21,17 +21,17 @@ module controller (
 
     localparam max = (M * A > N * A) ? M * A : N * A; // Maximum count value
     localparam count_width = (max == 0) ? 1 : $clog2(max + 1); // Width of the counter
-    localparam half_max = N + M; // Half of the maximum count value
+    localparam num_op = A + N + M - 2; // number of multiplication cycles to calc the right bottom element
     localparam PISO_FULL = M * N; // Full count for PISO
 
     logic [2:0] current_state, next_state;
-    logic counter_full, semi_counter, count_A, piso_full;
+    logic counter_full, op_counter, count_A, piso_full;
     logic rst_counter, enable_counter;
     logic [count_width-1:0] counter_out;
 
     counter #(
         .MAX(max),
-        .HALF_MAX(half_max),
+        .NUM_OP(num_op),
         .DEPTH(A),
         .PISO_FULL(PISO_FULL)
     ) counter_inst (
@@ -40,8 +40,8 @@ module controller (
         .enable(enable_counter),
         .full(counter_full),            //counts till max(M*A-1, N*A-1)
         .count_A(count_A),              //counts till A for matrix A input rows
-        .semi(semi_counter),            //counts till N+M
-        .piso_full(rst_piso),              // counts till M*N
+        .op_count(op_counter),            //counts till N+M
+        .piso_full(rst_piso),           // counts till M*N
         .counter_out(counter_out)       // output for counter
     );
 
@@ -96,8 +96,8 @@ module controller (
             PROCESS: begin
                 if (rst) begin
                     next_state <= IDLE; // Reset state
-                end else if (semi_counter) begin
-                    next_state <= SEND; // Transition to SEND state when semi_counter is high
+                end else if (op_counter) begin
+                    next_state <= SEND; // Transition to SEND state when op_counter is high
                 end else begin
                     next_state <= PROCESS;
                 end
@@ -163,8 +163,8 @@ module controller (
                 rst_piso = 1'b1;
                 enable_counter = 1'b1; // Enable counter in PROCESS state
 
-                if(semi_counter) begin
-                    rst_counter = 1'b1; // Reset counter when semi_counter is high
+                if(op_counter) begin
+                    rst_counter = 1'b1; // Reset counter when op_counter is high
                 end else begin
                     rst_counter = 1'b0; // Do not reset counter otherwise
                 end

@@ -1,6 +1,6 @@
 module counter #(
     parameter MAX = 12,
-    parameter HALF_MAX = 6,
+    parameter NUM_OP = 10,
     parameter DEPTH = 4,
     parameter PISO_FULL = 8,
     parameter COUNT_WIDTH = 4
@@ -10,7 +10,7 @@ module counter #(
     input logic enable,
     output logic full,
     output logic count_A,
-    output logic semi,
+    output logic op_count,
     output logic piso_full,
     output logic [COUNT_WIDTH-1:0] counter_out
 );
@@ -54,7 +54,7 @@ module counter #(
 
     // Assign outputs
     assign full = (counter_reg == MAX - 1);
-    assign semi = (counter_reg == HALF_MAX - 1);
+    assign op_count = (counter_reg == NUM_OP - 1);
     assign piso_full = (counter_reg == PISO_FULL - 1);
     assign count_A = (count_A_reg == DEPTH - 1);
     assign counter_out = counter_reg;
