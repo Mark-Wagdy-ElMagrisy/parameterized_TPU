@@ -1,62 +1,62 @@
-module counter #(
-    parameter MAX = 12,
-    parameter NUM_OP = 10,
-    parameter DEPTH = 4,
-    parameter PISO_FULL = 8,
-    parameter COUNT_WIDTH = 4
-)(
-    input logic clk,
-    input logic rst_counter,
-    input logic enable,
-    output logic full,
-    output logic count_A,
-    output logic op_count,
-    output logic piso_full,
-    output logic [COUNT_WIDTH-1:0] counter_out
+module counter (
+    //signlas to interface with the outside world
+    input logic clk,                    // Clock signal
+    input logic rst_counter,            // Active-high reset for the counter
+    input logic enable,                 // Enable signal to start the operation
+    input logic load,                   // Load signal to load the counter with a value
+    
+    input logic [31:0] load_value,      // Value to load into the counter
+    output logic counter_full,          // Signal to indicate if the counter is full
+    output logic [31:0] counter_out,    // Current value of the counter
+
+    input logic [31:0] load_subvalue,   // Value to load into the subcounter
+    output logic subcounter_full,       // Signal to indicate if the subcounter is full
+    output logic [31:0] subcounter_out  // Current value of the subcounter
 );
 
     // Internal registers
-    logic [COUNT_WIDTH-1:0] counter_reg;
-    logic [COUNT_WIDTH-1:0] count_A_reg;
+    logic [31:0] counter_reg;       // Register to hold the counter value
+    logic [31:0] subcounter_reg;    // Register to hold the subcounter value
 
     // Counter logic
     always_ff @(posedge clk) begin
-        if (rst_counter) begin
+        if (rst_counter) begin              // Reset the counter and subcounter, while keeping loaded values
+            
+            counter_out <= 0;
+            subcounter_out <= 0;
 
-            counter_reg <= 0;
-            count_A_reg <= 0;
+        end else if(enable && load) begin   // Load the counter and subcounter with specified values
+            
+            counter_reg <= load_value; // Load the value into the counter
+            subcounter_reg <= load_subvalue; // Load the value into the subcounter
+            counter_out <= 0; // Reset output to 0
+            subcounter_out <= 0; // Reset subcounter output to 0
 
-        end else if (enable) begin
+        end else if (enable) begin          // Increment the counter and subcounter
 
-            if (counter_reg < MAX - 1) begin
-                counter_reg <= counter_reg + 1;
+            if(subcounter_out < subcounter_reg - 1) begin // -2 because we want to count from 0 to DEPTH-1 and update other counter in last cycle
+                subcounter_out <= subcounter_out + 1;
             end else begin
-                counter_reg <= 0;
-                count_A_reg <= 0;
+                subcounter_out <= 0;
             end
 
-            if(count_A_reg < DEPTH - 1) begin
-                count_A_reg <= count_A_reg + 1;
-            end else begin
-                count_A_reg <= 0; // Reset count_A when it reaches DEPTH
+            if (counter_full) begin
+                counter_out <= 0;
+            end else if (subcounter_out < subcounter_reg - 2) begin
+                counter_out <= counter_out + 1;
             end
-
+            
         end else begin
 
             counter_reg <= counter_reg; // Hold value if not enabled
-            count_A_reg <= count_A_reg; // Hold value if not enabled
+            subcounter_reg <= subcounter_reg; // Hold value if not enabled
 
         end
 
-
     end
 
-
-    // Assign outputs
-    assign full = (counter_reg == MAX - 1);
-    assign op_count = (counter_reg == NUM_OP - 1);
-    assign piso_full = (counter_reg == PISO_FULL - 1);
-    assign count_A = (count_A_reg == DEPTH - 1);
-    assign counter_out = counter_reg;
+    assign counter_full = (counter_out == counter_reg - 1) &&
+                            (subcounter_out == subcounter_reg - 1);
+    assign subcounter_full = (subcounter_out == subcounter_reg - 1);
 
 endmodule
