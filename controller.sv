@@ -73,17 +73,20 @@ module controller #(
         //=======================================================
         // State encoding
         //=======================================================
-        localparam IDLE = 3'b000;       // Initial state
-        localparam DIMENSIONS = 3'b001; // State for setting dimensions
-        localparam ERROR = 3'b010;      // Error state
-        localparam LOAD = 3'b011;      // State for loading matrix A
-        localparam PAUSE = 3'b100;      // Updated state for pause functionality
-        localparam PROCESS = 3'b101;    // State for processing data
-        localparam SEND = 3'b110;       // State for sending data
-        localparam WAIT = 3'b111;       // State for waiting while sending data
-        
-        // State transition logic
-    logic [3:0] current_state, next_state;
+        typedef enum logic [2:0] {
+            IDLE = 3'b000,          // Initial state
+            DIMENSIONS = 3'b001,    // State for setting dimensions
+            ERROR = 3'b010,         // Error state
+            LOAD = 3'b011,          // State for loading matrix A
+            PAUSE = 3'b100,         // Updated state for pause functionality
+            PROCESS = 3'b101,       // State for processing data
+            SEND = 3'b110,          // State for sending data
+            WAIT = 3'b111            // State for waiting while sending data
+        } state_t;
+
+state_t current_state, next_state;
+
+    // State transition logic
     always_ff@(posedge clk) begin
         if (rst) begin
             current_state <= IDLE;
@@ -110,7 +113,7 @@ module controller #(
                 if (rst) begin
                     next_state <= IDLE; // Reset state
                 end else if (err_sig || !enable) begin
-                    next_state <= ERROR; // Transition to ERROR state when there's error
+                    next_state <= ERROR; // Transition to ERROR state when there's error in matrix sizes like bigger than hardware support
                 end else begin
                     next_state <= LOAD; // transition to LOAD state after one cycle and no error
                 end
@@ -122,7 +125,7 @@ module controller #(
                 if (rst) begin
                     next_state <= IDLE; // Reset state
                 end else if(!enable || !valid) begin
-                    next_state <= PAUSE; // Transition to PAUSE state if enable is low
+                    next_state <= PAUSE; // Transition to PAUSE state if either enable or valid is low
                 end else if (counter_full && A_done) begin
                     next_state <= PROCESS;
                 end else begin
@@ -132,8 +135,8 @@ module controller #(
             PAUSE: begin
                 if (rst) begin
                     next_state <= IDLE; // Reset state
-                end else if (enable) begin
-                    next_state <= LOAD;
+                end else if (enable && valid) begin
+                    next_state <= LOAD;// if enable and valid are back to high return to LOAD
                 end else begin
                     next_state <= PAUSE;
                 end
@@ -142,7 +145,7 @@ module controller #(
                 if (rst) begin
                     next_state <= IDLE; // Reset state
                 end else if (subcounter_full) begin
-                    next_state <= SEND; // Transition to SEND state when op_counter is high
+                    next_state <= SEND; // Transition to SEND state when subcounter_full is high indicating processing finished in last pe
                 end else begin
                     next_state <= PROCESS;
                 end
@@ -153,16 +156,16 @@ module controller #(
                 end else if(!enable) begin
                     next_state <= WAIT; // Transition to WAIT state if enable is low
                 end else if (counter_full) begin
-                    next_state <= IDLE; // Transition to IDLE state when rst_piso is high
+                    next_state <= IDLE; // Transition to IDLE state when counter_full is high indicating data is sent
                 end else begin
-                    next_state <= SEND; // Stay in SEND state until rst_piso is asserted
+                    next_state <= SEND;
                 end
             end
             WAIT: begin
                 if (rst) begin
                     next_state <= IDLE; // Reset state
                 end else if (enable) begin
-                    next_state <= SEND; // Transition back to SEND state when ready
+                    next_state <= SEND; // Transition to SEND state when enable is high
                 end else begin
                     next_state <= WAIT; // Stay in WAIT state until enable is asserted
                 end

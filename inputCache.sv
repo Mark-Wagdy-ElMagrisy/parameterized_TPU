@@ -32,7 +32,10 @@ module inputCache #(
             end else begin
                 // Read operation
                 data_out_mem <= bufferA_mem[sel_a];
+                bufferA_mem[sel_a][sel_n] <= bufferA_mem[sel_a][sel_n];
             end
+        end else begin
+            bufferA_mem[sel_a][sel_n] <= bufferA_mem[sel_a][sel_n];
         end
-    end
+        end
 endmodule
