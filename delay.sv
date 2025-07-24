@@ -15,7 +15,7 @@ module delay #(
         assign data_out[0] = data_in[0];
         for (i = 1; i < MAX_DELAY; i++) begin : gen_shift_rows
             for (j = 0; j < i; j++) begin : gen_shift_cols
-                regFile regFile_instance (
+                register regFile_instance (
                     .clk(clk),
                     .rst(rst),
                     .d((j == 0) ? data_in[i] : delays[i][j-1]),

@@ -1,4 +1,4 @@
-module regFile (
+module register (
     input  logic clk,
     input  logic rst,
     input  logic [31:0] d,
