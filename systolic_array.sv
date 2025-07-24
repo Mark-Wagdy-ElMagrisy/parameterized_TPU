@@ -8,7 +8,7 @@ module systolic_array #(
         input wire logic [31:0] data_inA [N-1:0],
         input wire logic [31:0] data_inB [M-1:0],
 
-        input wire logic [31:0] array_out [N-1:0][M-1:0]
+        output wire logic [31:0] array_out [N-1:0][M-1:0]
     );
 
     // Internal signals

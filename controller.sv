@@ -49,7 +49,7 @@ module controller #(
     //=======================================================
     //counter and counter signals
     //=======================================================
-    logic rst_counter, enable_counter, load_counter;
+    logic rst_counter, enable_counter, load_counter, counter_full, subcounter_full;
     logic [31:0] counter_in, subcounter_in;
     logic [31:0] counter_out, subcounter_out;
     
@@ -84,7 +84,7 @@ module controller #(
         
         // State transition logic
     logic [3:0] current_state, next_state;
-    always @(posedge clk or posedge rst) begin
+    always_ff@(posedge clk) begin
         if (rst) begin
             current_state <= IDLE;
         end else begin
@@ -97,7 +97,7 @@ module controller #(
     //=======================================================
     // Next state logic
     //=======================================================
-    always @(posedge clk) begin
+    always_ff@(posedge clk) begin
         case (current_state)
             IDLE: begin
                 if (enable && valid) begin
@@ -179,7 +179,7 @@ module controller #(
     assign errN = (data_in[7:0] > N) || (data_in[7:0] == 0);      // Check if N is within valid range
     assign err_sig = errA || errN || errM;
 
-    always @(*) begin
+    always_latch begin
         case (current_state)
             IDLE: begin
                 err = 1'b0;
@@ -430,6 +430,37 @@ module controller #(
                 rst_counter = 1'b0;
                 enable_counter = 1'b0;
                 load_counter = 1'b0;
+            end
+            default: begin
+                err = 1'b0;
+                ready = 1'b1;
+                done = 1'b0;
+
+                //signals to bufferA
+                selA_a = 1'b0;
+                selA_n = 1'b0;
+                wr_rd_A = 1'b0;
+                mem_enableA = 1'b0;
+
+                //signals to bufferB
+                selB_a = 1'b0;
+                selB_m = 1'b0;
+                wr_rd_B = 1'b0;
+                mem_enableA = 1'b0;
+
+                //signals to PISO
+                send = 1'b0;
+                selO_n = 1'b0;
+                selO_m = 1'b0;
+
+                //inputs to counter
+                rst_counter = 1'b1;
+                enable_counter = 1'b0;
+                load_counter = 1'b0;
+                counter_in = 0;
+                subcounter_in = 0;
+
+                A_done = 0;
             end
         endcase
     end

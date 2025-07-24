@@ -1,4 +1,4 @@
-module buffer #(
+module inputCache #(
     parameter A = 60000,
     parameter N = 256
 )(

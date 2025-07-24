@@ -11,6 +11,7 @@ module TPU #(
     input logic [31:0] data_in,
     output logic ready,
     output logic err,
+    output logic done,
     output logic [31:0] data_out);
 
     // Internal signals
@@ -51,6 +52,7 @@ module TPU #(
 
         .ready(ready),
         .err(err),
+        .done(done),
 
         .selA_a(selA_a),
         .selA_n(selA_n),
@@ -68,7 +70,7 @@ module TPU #(
         .selO_m(selO_m)
     );
 
-    buffer #(
+    inputCache #(
         .A(A),
         .N(N)
     ) bufferA (
@@ -85,7 +87,7 @@ module TPU #(
         .data_out_mem(data_outA)
     );
 
-    buffer #(
+    inputCache #(
         .A(A),
         .N(M)
     ) bufferB (
