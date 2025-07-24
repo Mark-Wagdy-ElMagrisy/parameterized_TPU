@@ -59,4 +59,4 @@ Assuming an MxN systolic array:
 It takes K + M + N - 2 cycles to fully load and compute the result. After the "wavefront" of data fills the array, one output value is produced per clock cycle
 
 ## Images
-![Systolic array operation](systolic array.jpg)
+![Systolic array operation](systolic%20array.jpg)
