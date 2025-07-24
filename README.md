@@ -12,7 +12,7 @@ This project implements a systolic array architecture for matrix operations, inc
 - [`processing_element.sv`](processing_element.sv): Core processing element for matrix computations.
 - [`systolic_array.sv`](systolic_array.sv): Top-level systolic array module integrating all components.
 - [`TPU.sv`](TPU.sv): Top-level module for the TPU (Tensor Processing Unit) system.
-- `documentation`(documentation): check the documentation folder for schematic and more info
+- [`documentation`](documentation/): check the documentation folder for schematic and more info
 
 ## Main Features
 
