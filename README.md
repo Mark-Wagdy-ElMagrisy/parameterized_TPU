@@ -12,6 +12,7 @@ This project implements a systolic array architecture for matrix operations, inc
 - [`processing_element.sv`](processing_element.sv): Core processing element for matrix computations.
 - [`systolic_array.sv`](systolic_array.sv): Top-level systolic array module integrating all components.
 - [`TPU.sv`](TPU.sv): Top-level module for the TPU (Tensor Processing Unit) system.
+- `documentation`(documentation): check the documentation folder for schematic and more info
 
 ## Main Features
 
@@ -47,4 +48,10 @@ This project implements a systolic array architecture for matrix operations, inc
 - **SEND**: Sends output data via PISO.
 - **WAIT**: Waits for `enable` to resume sending.
 
-For more details, see the comments in each module file or documentation directory.
+For more details, see the comments in each module file.
+
+## Idea of Operation
+
+A systolic array is a 2D grid of Processing Elements (PEs) that compute and pass data in a rhythmic, pipelined fashion. Each PE performs multiply-accumulate (MAC): acc += a * b Data flows in from the edges and is passed from PE to PE Intermediate results are accumulated within the PEs.
+
+![Systolic array operation](documentation/systolic array.jpg)
