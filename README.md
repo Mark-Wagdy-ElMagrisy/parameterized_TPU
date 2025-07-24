@@ -55,3 +55,4 @@ For more details, see the comments in each module file.
 A systolic array is a 2D grid of Processing Elements (PEs) that compute and pass data in a rhythmic, pipelined fashion. Each PE performs multiply-accumulate (MAC): acc += a * b Data flows in from the edges and is passed from PE to PE Intermediate results are accumulated within the PEs.
 
 ![Systolic array operation](/documentation/systolic%20array.jpg)
+[Image source](https://www.researchgate.net/figure/A-3-3-systolic-array-for-matrix-multiplication_fig1_380392345)

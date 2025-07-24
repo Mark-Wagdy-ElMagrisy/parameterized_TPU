@@ -60,3 +60,4 @@ It takes K + M + N - 2 cycles to fully load and compute the result. After the "w
 
 ## Images
 ![Systolic array operation](systolic%20array.jpg)
+[Image source](https://www.researchgate.net/figure/A-3-3-systolic-array-for-matrix-multiplication_fig1_380392345)
